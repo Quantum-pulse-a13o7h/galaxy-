@@ -1,12 +1,38 @@
+import { useState, useEffect } from "react";
 import { useSolarSystem } from "@/lib/stores/useSolarSystem";
-import { Info, Ruler, Weight, Thermometer, Clock, ArrowRight, X } from "lucide-react";
+import { Info, Ruler, Weight, Thermometer, Clock, ArrowRight, X, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { fetchWikipediaExtract } from "@/lib/wikipedia";
 
 export function InfoPanel() {
   const { selectedPlanet, focusedPlanet, setFocusedPlanet, setShowDetailView } = useSolarSystem();
   const navigate = useNavigate();
+  const [wikiDescription, setWikiDescription] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   
   const planet = focusedPlanet || selectedPlanet;
+  
+  useEffect(() => {
+    if (planet) {
+      setIsLoading(true);
+      setWikiDescription(null);
+      
+      fetchWikipediaExtract(planet.name)
+        .then((data) => {
+          if (data?.extract) {
+            setWikiDescription(data.extract);
+          } else {
+            setWikiDescription(planet.description);
+          }
+        })
+        .catch(() => {
+          setWikiDescription(planet.description);
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    }
+  }, [planet?.id, planet?.description]);
   
   if (!planet) return null;
 
@@ -40,9 +66,16 @@ export function InfoPanel() {
           </button>
         </div>
         
-        <p className="text-white/80 text-sm mb-4 line-clamp-2">
-          {planet.description}
-        </p>
+        <div className="text-white/80 text-sm mb-4">
+          {isLoading ? (
+            <div className="flex items-center gap-2 text-white/50">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Loading from Wikipedia...</span>
+            </div>
+          ) : (
+            <p className="line-clamp-2">{wikiDescription || planet.description}</p>
+          )}
+        </div>
         
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
           <div className="bg-white/5 rounded-lg p-2.5">

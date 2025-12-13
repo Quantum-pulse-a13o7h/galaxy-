@@ -20,10 +20,10 @@ export function Planet({ planet, onClick }: PlanetProps) {
     const baseColor = new THREE.Color(planet.color);
     return new THREE.MeshStandardMaterial({
       color: baseColor,
-      roughness: 0.7,
-      metalness: 0.1,
-      emissive: baseColor.clone().multiplyScalar(0.1),
-      emissiveIntensity: 0.3,
+      roughness: 0.6,
+      metalness: 0.15,
+      emissive: baseColor.clone().multiplyScalar(0.2),
+      emissiveIntensity: 0.5,
     });
   }, [planet.color]);
 

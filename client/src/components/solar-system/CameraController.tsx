@@ -10,6 +10,7 @@ export function CameraController() {
   const { focusedPlanet, cameraResetTrigger, simulationSpeed, isPaused } = useSolarSystem();
   const targetPosition = useRef(new THREE.Vector3(0, 0, 0));
   const orbitAngle = useRef(0);
+  const lastFocusedId = useRef<string | null>(null);
 
   useEffect(() => {
     if (!focusedPlanet) {
@@ -17,8 +18,16 @@ export function CameraController() {
       if (controlsRef.current) {
         controlsRef.current.target.set(0, 0, 0);
       }
+      lastFocusedId.current = null;
     }
   }, [cameraResetTrigger, camera]);
+
+  useEffect(() => {
+    if (focusedPlanet && focusedPlanet.id !== lastFocusedId.current) {
+      orbitAngle.current = 0;
+      lastFocusedId.current = focusedPlanet.id;
+    }
+  }, [focusedPlanet]);
 
   useFrame((state, delta) => {
     if (focusedPlanet && controlsRef.current) {
@@ -31,15 +40,15 @@ export function CameraController() {
       
       targetPosition.current.set(x, 0, z);
       
-      controlsRef.current.target.lerp(targetPosition.current, 0.05);
+      controlsRef.current.target.lerp(targetPosition.current, 0.08);
       
-      const distance = focusedPlanet.radius * 6;
+      const distance = Math.max(focusedPlanet.radius * 8, 5);
       const targetCameraPos = new THREE.Vector3(
-        x + distance * 0.5,
-        distance * 0.5,
-        z + distance
+        x + distance * 0.6,
+        distance * 0.4,
+        z + distance * 0.8
       );
-      camera.position.lerp(targetCameraPos, 0.02);
+      camera.position.lerp(targetCameraPos, 0.04);
     }
   });
 
@@ -49,9 +58,9 @@ export function CameraController() {
       enablePan={true}
       enableZoom={true}
       enableRotate={true}
-      minDistance={5}
+      minDistance={3}
       maxDistance={300}
-      dampingFactor={0.05}
+      dampingFactor={0.08}
       enableDamping
       rotateSpeed={0.5}
       zoomSpeed={0.8}

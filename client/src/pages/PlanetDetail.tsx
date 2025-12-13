@@ -4,20 +4,22 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { useSolarSystem, Planet } from "@/lib/stores/useSolarSystem";
-import { ArrowLeft, Sparkles, Info, Ruler, Weight, Thermometer, Clock, Calendar, Atom } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowLeft, Sparkles, Info, Ruler, Weight, Thermometer, Clock, Calendar, Atom, Loader2 } from "lucide-react";
+import { motion, useScroll } from "framer-motion";
+import { fetchWikipediaExtract } from "@/lib/wikipedia";
 
 function DetailPlanet({ planet, scrollProgress }: { planet: Planet; scrollProgress: number }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const cloudsRef = useRef<THREE.Mesh>(null);
   const atmosphereRef = useRef<THREE.Mesh>(null);
   const { camera } = useThree();
+  const targetZ = useRef(8);
   
-  const zoomDistance = 8 - scrollProgress * 4;
-  
-  useEffect(() => {
-    camera.position.z = Math.max(4, zoomDistance);
-  }, [camera, zoomDistance]);
+  useFrame(() => {
+    const zoomDistance = 8 - scrollProgress * 3.5;
+    targetZ.current = Math.max(4.5, zoomDistance);
+    camera.position.z += (targetZ.current - camera.position.z) * 0.05;
+  });
   
   const planetMaterial = useMemo(() => {
     const baseColor = new THREE.Color(planet.color);
@@ -113,12 +115,32 @@ export default function PlanetDetail() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ container: containerRef });
   const [scrollValue, setScrollValue] = useState(0);
+  const [wikiDescription, setWikiDescription] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   
   const planet = planets.find(p => p.id === planetId);
   
   useEffect(() => {
     return scrollYProgress.on("change", (v) => setScrollValue(v));
   }, [scrollYProgress]);
+  
+  useEffect(() => {
+    if (planet) {
+      setIsLoading(true);
+      fetchWikipediaExtract(planet.name)
+        .then((data) => {
+          if (data?.extract) {
+            setWikiDescription(data.extract);
+          } else {
+            setWikiDescription(planet.description);
+          }
+        })
+        .catch(() => {
+          setWikiDescription(planet.description);
+        })
+        .finally(() => setIsLoading(false));
+    }
+  }, [planet?.id, planet?.description]);
   
   if (!planet) {
     return (
@@ -195,9 +217,16 @@ export default function PlanetDetail() {
                   <Info className="w-7 h-7 text-blue-400" />
                   About {planet.name}
                 </h2>
-                <p className="text-white/80 text-lg leading-relaxed">
-                  {planet.description}
-                </p>
+                {isLoading ? (
+                  <div className="flex items-center gap-2 text-white/50">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Loading from Wikipedia...</span>
+                  </div>
+                ) : (
+                  <p className="text-white/80 text-lg leading-relaxed">
+                    {wikiDescription || planet.description}
+                  </p>
+                )}
               </motion.div>
               
               <motion.div

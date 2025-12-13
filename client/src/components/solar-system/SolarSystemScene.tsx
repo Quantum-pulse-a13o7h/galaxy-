@@ -15,17 +15,28 @@ export function SolarSystemScene() {
     <>
       <CameraController />
       
-      <ambientLight intensity={0.15} color="#404060" />
+      <ambientLight intensity={0.4} color="#667799" />
       
       <directionalLight
-        position={[50, 50, 50]}
-        intensity={0.3}
+        position={[100, 50, 50]}
+        intensity={0.8}
         color="#ffffff"
       />
       <directionalLight
-        position={[-50, 30, -50]}
-        intensity={0.1}
-        color="#4477ff"
+        position={[-80, 30, -80]}
+        intensity={0.4}
+        color="#6699ff"
+      />
+      <directionalLight
+        position={[0, 100, 0]}
+        intensity={0.3}
+        color="#ffffff"
+      />
+      
+      <hemisphereLight
+        color="#ffffff"
+        groundColor="#444466"
+        intensity={0.5}
       />
       
       <Suspense fallback={null}>
