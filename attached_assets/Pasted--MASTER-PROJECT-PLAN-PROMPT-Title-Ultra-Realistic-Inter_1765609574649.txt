@@ -1,0 +1,203 @@
+# 🧠 MASTER PROJECT PLAN & PROMPT
+
+**Title:** *Ultra-Realistic Interactive Solar System Web Experience*
+
+---
+
+## 🎯 PROJECT GOAL
+
+Build a **high-end, ultra-realistic, interactive solar system web app** with cinematic visuals, realistic planets, smooth UI, and deep planet detail pages.
+
+---
+
+## 🛠️ TECH STACK (MANDATORY)
+
+* **Three.js (latest stable)**
+* **ES modules**
+* **HDR environment lighting**
+* **PBR materials**
+* **NASA / scientific planet textures**
+* **Modular file structure (NO single-file projects)**
+* Optional: Vite or similar dev server
+
+---
+
+## 📁 REQUIRED PROJECT STRUCTURE
+
+```
+project-root/
+├── index.html              # Main solar system view
+├── planet.html             # Single-planet ultra detail view
+├── styles/
+│   ├── main.css
+│   └── ui.css
+├── js/
+│   ├── core/
+│   │   ├── renderer.js
+│   │   ├── camera.js
+│   │   └── lighting.js
+│   ├── objects/
+│   │   ├── sun.js
+│   │   ├── earth.js
+│   │   ├── planetFactory.js
+│   │   └── moons.js
+│   ├── ui/
+│   │   ├── controlPanel.js
+│   │   ├── planetList.js
+│   │   └── infoPanel.js
+│   ├── data/
+│   │   ├── planets.json
+│   │   └── wiki.js
+│   └── main.js
+└── assets/
+    ├── textures/
+    ├── hdr/
+    └── icons/
+```
+
+---
+
+## 🌌 MAIN SOLAR SYSTEM VIEW (index.html)
+
+### Visual Requirements
+
+* All planets **always visible** (NO black planets)
+* Proper **HDR environment lighting**
+* Additional key + fill lights per scene
+* Correct sRGB / ACES tone mapping
+* Each planet uses **PBR textures**
+
+  * Albedo
+  * Normal
+  * Roughness
+* Saturn has **textured rings**
+* Earth has:
+
+  * Clouds
+  * Atmosphere glow
+  * Bright moon
+  * Slight “cute” animations (cloud drift, glow pulse)
+
+---
+
+### Camera & Controls
+
+* Cinematic smooth camera
+* Scroll = zoom
+* Drag = orbit
+* Damping enabled
+* Clicking a planet:
+
+  * Camera smoothly follows that planet
+  * Orbit center updates
+
+---
+
+## 🎛️ UI REQUIREMENTS (Glassmorphism)
+
+### Translucent Control Panel
+
+* Global simulation speed slider
+* Pause / play
+* Reset camera
+
+### Planet List Menu
+
+* List of all planets
+* Clicking a planet name:
+
+  * Focuses camera
+  * Highlights planet
+  * Updates info panel
+
+---
+
+## 📖 PLANET INFORMATION SYSTEM
+
+### Info Panel (in main view)
+
+* Planet name
+* Radius
+* Mass
+* Gravity
+* Fun facts
+* Short description
+
+Data source:
+
+* Wikipedia REST API
+* Fallback to local JSON if offline
+
+---
+
+## 🔍 DEEP PLANET DETAIL VIEW (planet.html)
+
+Triggered when:
+
+* User zooms close enough
+* OR clicks “View Details”
+
+### Detail Page Requirements
+
+* Fullscreen ultra-realistic single planet
+* Very high geometry (256+ segments)
+* PBR textures + normal maps
+* HDR lighting only (no flat lights)
+* Smooth continuous rotation
+
+### Cinematic Scroll Interaction
+
+* Scrolling:
+
+  * Zooms camera closer
+  * Reveals more details
+  * Changes lighting subtly
+* Planet remains centered
+* Planet appears “giant” while scrolling
+
+---
+
+### Extra Details
+
+* Long Wikipedia content
+* Fun facts section
+* Scientific data cards
+* Smooth fade-in animations
+
+---
+
+## 🚫 ABSOLUTE RULES
+
+* No single-file hacks
+* No flat-color planets
+* No unlit MeshBasicMaterial for planets
+* No missing lighting setup
+* No rushed “everything at once” delivery
+
+---
+
+## 🧪 DEVELOPMENT STRATEGY (IMPORTANT)
+
+1. Build **one planet** (Earth or Mars) perfectly
+2. Lock lighting & color pipeline
+3. Add UI
+4. Add interactions
+5. Add deep detail page
+6. Only then expand to full solar system
+
+---
+
+## ✅ SUCCESS CRITERIA
+
+* No planet ever appears black
+* Smooth performance
+* Cinematic feel
+* Clear separation of concerns
+* Easily extensible
+
+---
+final note
+> Do NOT try to implement everything in one step.
+> Follow the architecture strictly.
+> Prioritize lighting correctness and visibility first.
+
