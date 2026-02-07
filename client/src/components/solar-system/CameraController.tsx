@@ -3,6 +3,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { useSolarSystem } from "@/lib/stores/useSolarSystem";
+import { getEllipticalPosition, getOrbitalSpeed } from "@/lib/orbitUtils";
 
 export function CameraController() {
   const controlsRef = useRef<any>(null);
@@ -32,21 +33,20 @@ export function CameraController() {
   useFrame((state, delta) => {
     if (focusedPlanet && controlsRef.current) {
       if (!isPaused) {
-        orbitAngle.current += focusedPlanet.orbitSpeed * simulationSpeed;
+        const speed = getOrbitalSpeed(focusedPlanet.orbitSpeed, orbitAngle.current, focusedPlanet.eccentricity);
+        orbitAngle.current += speed * simulationSpeed;
       }
       
-      const x = Math.cos(orbitAngle.current) * focusedPlanet.orbitRadius;
-      const z = Math.sin(orbitAngle.current) * focusedPlanet.orbitRadius;
-      
-      targetPosition.current.set(x, 0, z);
+      const pos = getEllipticalPosition(orbitAngle.current, focusedPlanet.orbitRadius, focusedPlanet.eccentricity);
+      targetPosition.current.copy(pos);
       
       controlsRef.current.target.lerp(targetPosition.current, 0.08);
       
       const distance = Math.max(focusedPlanet.radius * 8, 5);
       const targetCameraPos = new THREE.Vector3(
-        x + distance * 0.6,
+        pos.x + distance * 0.6,
         distance * 0.4,
-        z + distance * 0.8
+        pos.z + distance * 0.8
       );
       camera.position.lerp(targetCameraPos, 0.04);
     }

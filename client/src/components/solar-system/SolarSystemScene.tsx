@@ -6,6 +6,8 @@ import { Saturn } from "./Saturn";
 import { OrbitLines } from "./OrbitLines";
 import { Starfield } from "./Starfield";
 import { CameraController } from "./CameraController";
+import { AsteroidBelt } from "./AsteroidBelt";
+import { Moons } from "./Moons";
 import { useSolarSystem } from "@/lib/stores/useSolarSystem";
 
 export function SolarSystemScene() {
@@ -42,6 +44,7 @@ export function SolarSystemScene() {
       <Suspense fallback={null}>
         <Starfield />
         <OrbitLines />
+        <AsteroidBelt />
         
         <Sun />
         
@@ -54,6 +57,8 @@ export function SolarSystemScene() {
           }
           return <Planet key={planet.id} planet={planet} />;
         })}
+        
+        <Moons />
       </Suspense>
     </>
   );

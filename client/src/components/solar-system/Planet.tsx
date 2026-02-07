@@ -3,6 +3,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { Html } from "@react-three/drei";
 import { useSolarSystem, Planet as PlanetType } from "@/lib/stores/useSolarSystem";
+import { getEllipticalPosition, getOrbitalSpeed } from "@/lib/orbitUtils";
 
 interface PlanetProps {
   planet: PlanetType;
@@ -11,7 +12,8 @@ interface PlanetProps {
 
 export function Planet({ planet, onClick }: PlanetProps) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const orbitRef = useRef<THREE.Group>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  const orbitAngle = useRef(Math.random() * Math.PI * 2);
   const { simulationSpeed, isPaused, focusedPlanet, setFocusedPlanet } = useSolarSystem();
   const [hovered, setHovered] = useState(false);
   const { camera } = useThree();
@@ -28,11 +30,18 @@ export function Planet({ planet, onClick }: PlanetProps) {
   }, [planet.color]);
 
   useFrame((state, delta) => {
-    if (orbitRef.current && !isPaused) {
-      orbitRef.current.rotation.y += planet.orbitSpeed * simulationSpeed;
+    if (!isPaused) {
+      const speed = getOrbitalSpeed(planet.orbitSpeed, orbitAngle.current, planet.eccentricity);
+      orbitAngle.current += speed * simulationSpeed;
+
+      if (meshRef.current) {
+        meshRef.current.rotation.y += planet.rotationSpeed * simulationSpeed;
+      }
     }
-    if (meshRef.current && !isPaused) {
-      meshRef.current.rotation.y += planet.rotationSpeed * simulationSpeed;
+
+    if (groupRef.current) {
+      const pos = getEllipticalPosition(orbitAngle.current, planet.orbitRadius, planet.eccentricity);
+      groupRef.current.position.copy(pos);
     }
   });
 
@@ -46,10 +55,9 @@ export function Planet({ planet, onClick }: PlanetProps) {
   const isFocused = focusedPlanet?.id === planet.id;
 
   return (
-    <group ref={orbitRef}>
+    <group ref={groupRef}>
       <mesh
         ref={meshRef}
-        position={[planet.orbitRadius, 0, 0]}
         material={planetMaterial}
         onClick={(e) => {
           e.stopPropagation();
@@ -72,7 +80,7 @@ export function Planet({ planet, onClick }: PlanetProps) {
         )}
       </mesh>
       {isFocused && (
-        <mesh position={[planet.orbitRadius, 0, 0]}>
+        <mesh>
           <ringGeometry args={[planet.radius * 1.5, planet.radius * 1.6, 32]} />
           <meshBasicMaterial color="#00ff88" transparent opacity={0.5} side={THREE.DoubleSide} />
         </mesh>

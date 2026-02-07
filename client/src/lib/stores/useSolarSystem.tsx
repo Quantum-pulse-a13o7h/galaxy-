@@ -16,6 +16,7 @@ export interface Planet {
   hasClouds?: boolean;
   hasMoon?: boolean;
   hasRings?: boolean;
+  eccentricity: number;
   mass: string;
   gravity: string;
   diameter: string;
