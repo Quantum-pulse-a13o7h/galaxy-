@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { Html } from "@react-three/drei";
 import { useSolarSystem, Planet as PlanetType } from "@/lib/stores/useSolarSystem";
 import { getEllipticalPosition, getOrbitalSpeed } from "@/lib/orbitUtils";
+import { usePlanetTextures } from "@/lib/usePlanetTextures";
 
 interface SaturnProps {
   planet: PlanetType;
@@ -16,23 +17,32 @@ export function Saturn({ planet }: SaturnProps) {
   const orbitAngle = useRef(Math.random() * Math.PI * 2);
   const { simulationSpeed, isPaused, focusedPlanet, setFocusedPlanet } = useSolarSystem();
   const [hovered, setHovered] = useState(false);
+  const textures = usePlanetTextures(planet.id);
+
   
   const saturnMaterial = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
-      color: new THREE.Color("#E4C87E"),
-      roughness: 0.7,
-      metalness: 0.1,
-      emissive: new THREE.Color("#D4A84E"),
-      emissiveIntensity: 0.15,
-    });
-  }, []);
+  return new THREE.MeshStandardMaterial({
+    map: textures.map,
+    roughness: 1,
+    metalness: 0,
+  });
+}, [textures]);
 
-  const ringColors = useMemo(() => [
-    { inner: planet.radius * 1.4, outer: planet.radius * 1.6, color: "#C9B896", opacity: 0.8 },
-    { inner: planet.radius * 1.65, outer: planet.radius * 1.9, color: "#E8D5B7", opacity: 0.6 },
-    { inner: planet.radius * 2.0, outer: planet.radius * 2.3, color: "#D4C4A8", opacity: 0.4 },
-    { inner: planet.radius * 2.35, outer: planet.radius * 2.5, color: "#BFB095", opacity: 0.3 },
-  ], [planet.radius]);
+   const ringsMaterial = useMemo(() => {
+  return new THREE.MeshStandardMaterial({
+    map: textures.ringsMap,
+    transparent: true,
+    opacity: 0.95,
+    side: THREE.DoubleSide,
+    roughness: 0.8,
+    metalness: 0,
+    alphaTest: 0.15,
+    depthWrite: false,
+  });
+}, [textures]);
+
+
+ 
 
   useFrame((state, delta) => {
     if (!isPaused) {
@@ -60,7 +70,8 @@ export function Saturn({ planet }: SaturnProps) {
   const isFocused = focusedPlanet?.id === planet.id;
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} name={`planet-${planet.id}`}>
+
       <mesh
         ref={meshRef}
         material={saturnMaterial}
@@ -84,20 +95,12 @@ export function Saturn({ planet }: SaturnProps) {
         )}
       </mesh>
 
-      <group ref={ringsRef} rotation={[Math.PI * 0.4, 0, 0]}>
-        {ringColors.map((ring, index) => (
-          <mesh key={index} rotation={[Math.PI / 2, 0, 0]}>
-            <ringGeometry args={[ring.inner, ring.outer, 64]} />
-            <meshStandardMaterial 
-              color={ring.color} 
-              transparent 
-              opacity={ring.opacity}
-              side={THREE.DoubleSide}
-              roughness={0.8}
-            />
-          </mesh>
-        ))}
-      </group>
+     <group ref={ringsRef} rotation={[Math.PI * 0.4, 0, 0]}>
+  <mesh rotation={[Math.PI / 2, 0, 0]} material={ringsMaterial}>
+    <ringGeometry args={[planet.radius * 1.4, planet.radius * 2.8, 256]} />
+  </mesh>
+</group>
+
 
       {isFocused && (
         <mesh>

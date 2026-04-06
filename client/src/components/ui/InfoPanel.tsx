@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { useSolarSystem } from "@/lib/stores/useSolarSystem";
-import { Info, Ruler, Weight, Thermometer, Clock, ArrowRight, X, Loader2 } from "lucide-react";
+import { Info, Ruler, Weight, Thermometer, Clock, ArrowRight, X, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { fetchWikipediaExtract } from "@/lib/wikipedia";
 
 export function InfoPanel() {
-  const { selectedPlanet, focusedPlanet, setFocusedPlanet, setShowDetailView } = useSolarSystem();
+  const { selectedPlanet, focusedPlanet, setFocusedPlanet } = useSolarSystem();
   const navigate = useNavigate();
   const [wikiDescription, setWikiDescription] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   
   const planet = focusedPlanet || selectedPlanet;
   
@@ -36,6 +37,19 @@ export function InfoPanel() {
   
   if (!planet) return null;
 
+  if (!isOpen) {
+    return (
+      <button
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl text-white text-sm shadow-2xl"
+        title="Show details"
+      >
+        <ChevronUp className="w-4 h-4" />
+        Show Details
+      </button>
+    );
+  }
+
   const handleViewDetails = () => {
     navigate(`/planet/${planet.id}`);
   };
@@ -49,8 +63,10 @@ export function InfoPanel() {
       <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-5 shadow-2xl">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
-                 style={{ backgroundColor: planet.color + "40" }}>
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
+              style={{ backgroundColor: planet.color + "40" }}
+            >
               {planet.type === "star" ? "☀️" : "🌍"}
             </div>
             <div>
@@ -58,12 +74,23 @@ export function InfoPanel() {
               <p className="text-white/60 text-sm capitalize">{planet.type}</p>
             </div>
           </div>
-          <button 
-            onClick={handleClose}
-            className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <X className="w-5 h-5 text-white/60" />
-          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+              title="Hide panel"
+            >
+              <ChevronDown className="w-5 h-5 text-white/60" />
+            </button>
+            <button
+              onClick={handleClose}
+              className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"
+              title="Close"
+            >
+              <X className="w-5 h-5 text-white/60" />
+            </button>
+          </div>
         </div>
         
         <div className="text-white/80 text-sm mb-4">

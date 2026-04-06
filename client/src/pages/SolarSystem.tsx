@@ -7,6 +7,8 @@ import { PlanetList } from "@/components/ui/PlanetList";
 import { InfoPanel } from "@/components/ui/InfoPanel";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { VRButton } from "@/components/ui/VRButton";
+import { Link } from "react-router-dom";
+import { ArrowLeft, ArrowLeftRight } from "lucide-react";
 
 const xrStore = createXRStore({});
 
@@ -43,6 +45,23 @@ export default function SolarSystem() {
         </XR>
       </Canvas>
       
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/20 bg-white/10 text-white/80 text-xs hover:bg-white/20 transition"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Landing
+        </Link>
+        <Link
+          to="/compare"
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-full border border-white/20 bg-white/10 text-white/80 text-xs hover:bg-white/20 transition"
+        >
+          <ArrowLeftRight className="w-4 h-4" />
+          Compare
+        </Link>
+      </div>
+
       <ControlPanel />
       <PlanetList />
       <InfoPanel />

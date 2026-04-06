@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -72,6 +74,40 @@ canvas {
   background: rgba(255, 255, 255, 0.3);
 }
 
+@keyframes milkyway-pan {
+  0% {
+    background-position: 50% 25%;
+  }
+  50% {
+    background-position: 55% 55%;
+  }
+  100% {
+    background-position: 50% 25%;
+  }
+}
+
+.milkyway-live {
+  animation: milkyway-pan 140s ease-in-out infinite;
+}
+
+@keyframes shooting {
+  0% {
+    opacity: 0;
+    transform: translateX(0) translateY(0);
+  }
+  10% {
+    opacity: 0.9;
+  }
+  35% {
+    opacity: 0;
+    transform: translateX(-220px) translateY(120px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-220px) translateY(120px);
+  }
+}
+
 input[type="range"] {
   -webkit-appearance: none;
   background: transparent;
@@ -94,4 +130,12 @@ input[type="range"]::-webkit-slider-runnable-track {
   cursor: pointer;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 2px;
+}
+
+.font-display {
+  font-family: "Cinzel", serif;
+}
+
+.font-body {
+  font-family: "Space Grotesk", sans-serif;
 }

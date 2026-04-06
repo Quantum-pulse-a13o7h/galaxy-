@@ -9,6 +9,7 @@ import { CameraController } from "./CameraController";
 import { AsteroidBelt } from "./AsteroidBelt";
 import { Moons } from "./Moons";
 import { useSolarSystem } from "@/lib/stores/useSolarSystem";
+import { MilkyWay } from "./MilkyWay";
 
 export function SolarSystemScene() {
   const { planets } = useSolarSystem();
@@ -41,25 +42,27 @@ export function SolarSystemScene() {
         intensity={0.5}
       />
       
-      <Suspense fallback={null}>
-        <Starfield />
-        <OrbitLines />
-        <AsteroidBelt />
-        
-        <Sun />
-        
-        {planets.filter(p => p.type === "planet").map((planet) => {
-          if (planet.id === "earth") {
-            return <Earth key={planet.id} planet={planet} />;
-          }
-          if (planet.id === "saturn") {
-            return <Saturn key={planet.id} planet={planet} />;
-          }
-          return <Planet key={planet.id} planet={planet} />;
-        })}
-        
-        <Moons />
-      </Suspense>
+     <Suspense fallback={null}>
+  <MilkyWay />
+  <Starfield />
+  <OrbitLines />
+  <AsteroidBelt />
+
+  <Sun />
+
+  {planets.filter(p => p.type === "planet").map((planet) => {
+    if (planet.id === "earth") {
+      return <Earth key={planet.id} planet={planet} />;
+    }
+    if (planet.id === "saturn") {
+      return <Saturn key={planet.id} planet={planet} />;
+    }
+    return <Planet key={planet.id} planet={planet} />;
+  })}
+
+  <Moons />
+</Suspense>
+
     </>
   );
 }

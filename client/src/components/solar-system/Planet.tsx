@@ -1,5 +1,6 @@
 import { useRef, useMemo, useState, useEffect } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
+import { usePlanetTextures } from "@/lib/usePlanetTextures";
 import * as THREE from "three";
 import { Html } from "@react-three/drei";
 import { useSolarSystem, Planet as PlanetType } from "@/lib/stores/useSolarSystem";
@@ -16,18 +17,16 @@ export function Planet({ planet, onClick }: PlanetProps) {
   const orbitAngle = useRef(Math.random() * Math.PI * 2);
   const { simulationSpeed, isPaused, focusedPlanet, setFocusedPlanet } = useSolarSystem();
   const [hovered, setHovered] = useState(false);
-  const { camera } = useThree();
-  
+  const textures = usePlanetTextures(planet.id);
+
   const planetMaterial = useMemo(() => {
-    const baseColor = new THREE.Color(planet.color);
-    return new THREE.MeshStandardMaterial({
-      color: baseColor,
-      roughness: 0.6,
-      metalness: 0.15,
-      emissive: baseColor.clone().multiplyScalar(0.2),
-      emissiveIntensity: 0.5,
-    });
-  }, [planet.color]);
+  return new THREE.MeshStandardMaterial({
+    map: textures.map,
+    roughness: 1,
+    metalness: 0,
+  });
+}, [textures]);
+
 
   useFrame((state, delta) => {
     if (!isPaused) {
@@ -55,7 +54,8 @@ export function Planet({ planet, onClick }: PlanetProps) {
   const isFocused = focusedPlanet?.id === planet.id;
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} name={`planet-${planet.id}`}>
+
       <mesh
         ref={meshRef}
         material={planetMaterial}

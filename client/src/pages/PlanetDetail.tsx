@@ -7,6 +7,9 @@ import { useSolarSystem, Planet } from "@/lib/stores/useSolarSystem";
 import { ArrowLeft, Sparkles, Info, Ruler, Weight, Thermometer, Clock, Calendar, Atom, Loader2 } from "lucide-react";
 import { motion, useScroll } from "framer-motion";
 import { fetchWikipediaExtract } from "@/lib/wikipedia";
+import { usePlanetTextures } from "@/lib/usePlanetTextures";
+import { MilkyWay } from "@/components/solar-system/MilkyWay";
+
 
 function DetailPlanet({ planet, scrollProgress }: { planet: Planet; scrollProgress: number }) {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -14,6 +17,8 @@ function DetailPlanet({ planet, scrollProgress }: { planet: Planet; scrollProgre
   const atmosphereRef = useRef<THREE.Mesh>(null);
   const { camera } = useThree();
   const targetZ = useRef(8);
+  const textures = usePlanetTextures(planet.id);
+
   
   useFrame(() => {
     const zoomDistance = 8 - scrollProgress * 3.5;
@@ -21,16 +26,17 @@ function DetailPlanet({ planet, scrollProgress }: { planet: Planet; scrollProgre
     camera.position.z += (targetZ.current - camera.position.z) * 0.05;
   });
   
-  const planetMaterial = useMemo(() => {
-    const baseColor = new THREE.Color(planet.color);
-    return new THREE.MeshStandardMaterial({
-      color: baseColor,
-      roughness: 0.6,
-      metalness: 0.15,
-      emissive: baseColor.clone().multiplyScalar(0.15),
-      emissiveIntensity: 0.4,
-    });
-  }, [planet.color]);
+ const planetMaterial = useMemo(() => {
+  return new THREE.MeshStandardMaterial({
+    map: textures.map,
+    roughness: 1,
+    metalness: 0,
+    emissiveMap: textures.lightsMap,
+    emissive: new THREE.Color(planet.id === "sun" ? "#ff8a00" : "#000000"),
+    emissiveIntensity: planet.id === "sun" ? 1.5 : textures.lightsMap ? 0.6 : 0,
+  });
+}, [textures, planet.id]);
+
 
   useFrame((state, delta) => {
     if (meshRef.current) {
@@ -51,35 +57,29 @@ function DetailPlanet({ planet, scrollProgress }: { planet: Planet; scrollProgre
         <sphereGeometry args={[2, 256, 256]} />
       </mesh>
       
-      {isEarth && (
-        <>
-          <mesh ref={cloudsRef}>
-            <sphereGeometry args={[2.04, 128, 128]} />
-            <meshStandardMaterial color="#ffffff" transparent opacity={0.35} roughness={1} />
-          </mesh>
-          <mesh ref={atmosphereRef}>
-            <sphereGeometry args={[2.2, 64, 64]} />
-            <meshBasicMaterial color="#87CEEB" transparent opacity={0.1} side={THREE.BackSide} />
-          </mesh>
-        </>
-      )}
+    {isEarth && textures.cloudsMap && (
+  <>
+    <mesh ref={cloudsRef}>
+      <sphereGeometry args={[2.04, 128, 128]} />
+      <meshStandardMaterial map={textures.cloudsMap} transparent opacity={0.85} roughness={1} depthWrite={false} />
+    </mesh>
+    <mesh ref={atmosphereRef}>
+      <sphereGeometry args={[2.2, 64, 64]} />
+      <meshBasicMaterial color="#87CEEB" transparent opacity={0.1} side={THREE.BackSide} />
+    </mesh>
+  </>
+)}
+
       
-      {isSaturn && (
-        <group rotation={[Math.PI * 0.4, 0, 0]}>
-          <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <ringGeometry args={[2.8, 3.2, 128]} />
-            <meshStandardMaterial color="#C9B896" transparent opacity={0.7} side={THREE.DoubleSide} roughness={0.8} />
-          </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <ringGeometry args={[3.3, 3.8, 128]} />
-            <meshStandardMaterial color="#E8D5B7" transparent opacity={0.5} side={THREE.DoubleSide} roughness={0.8} />
-          </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <ringGeometry args={[4.0, 4.6, 128]} />
-            <meshStandardMaterial color="#D4C4A8" transparent opacity={0.35} side={THREE.DoubleSide} roughness={0.8} />
-          </mesh>
-        </group>
-      )}
+     {isSaturn && textures.ringsMap && (
+  <group rotation={[Math.PI * 0.4, 0, 0]}>
+    <mesh rotation={[Math.PI / 2, 0, 0]}>
+      <ringGeometry args={[2.8, 5.6, 256]} />
+      <meshStandardMaterial map={textures.ringsMap} transparent opacity={0.95} side={THREE.DoubleSide} roughness={0.8} alphaTest={0.15} />
+    </mesh>
+  </group>
+)}
+
       
       {isSun && (
         <>
@@ -169,8 +169,10 @@ export default function PlanetDetail() {
         >
           <color attach="background" args={["#000005"]} />
           <Suspense fallback={null}>
-            <DetailPlanet planet={planet} scrollProgress={scrollValue} />
-          </Suspense>
+  <MilkyWay />
+  <DetailPlanet planet={planet} scrollProgress={scrollValue} />
+</Suspense>
+
         </Canvas>
       </div>
       

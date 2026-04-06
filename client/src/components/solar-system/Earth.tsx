@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { Html } from "@react-three/drei";
 import { useSolarSystem, Planet as PlanetType } from "@/lib/stores/useSolarSystem";
 import { getEllipticalPosition, getOrbitalSpeed } from "@/lib/orbitUtils";
+import { usePlanetTextures, useMoonTexture } from "@/lib/usePlanetTextures";
 
 interface EarthProps {
   planet: PlanetType;
@@ -21,32 +22,33 @@ export function Earth({ planet }: EarthProps) {
   const [hovered, setHovered] = useState(false);
   const [glowIntensity, setGlowIntensity] = useState(0.3);
   
+  const textures = usePlanetTextures(planet.id);
+const moonTexture = useMoonTexture();
+
   const earthMaterial = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
-      color: new THREE.Color("#4A90D9"),
-      roughness: 0.6,
-      metalness: 0.1,
-      emissive: new THREE.Color("#1a4a7a"),
-      emissiveIntensity: 0.2,
-    });
-  }, []);
+  return new THREE.MeshStandardMaterial({
+    map: textures.map,
+    roughness: 1,
+    metalness: 0,
+    emissiveMap: textures.lightsMap,
+    emissive: new THREE.Color("#88aaff"),
+    emissiveIntensity: textures.lightsMap ? 0.6 : 0,
+  });
+}, [textures]);
 
-  const landMaterial = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
-      color: new THREE.Color("#3D8B37"),
-      roughness: 0.8,
-      metalness: 0,
-    });
-  }, []);
 
-  const cloudMaterial = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
-      color: new THREE.Color("#FFFFFF"),
-      transparent: true,
-      opacity: 0.4,
-      roughness: 1,
-    });
-  }, []);
+  
+
+ const cloudMaterial = useMemo(() => {
+  return new THREE.MeshStandardMaterial({
+    map: textures.cloudsMap,
+    transparent: true,
+    opacity: 0.85,
+    roughness: 1,
+    depthWrite: false,
+  });
+}, [textures]);
+
 
   const atmosphereMaterial = useMemo(() => {
     return new THREE.MeshBasicMaterial({
@@ -57,15 +59,14 @@ export function Earth({ planet }: EarthProps) {
     });
   }, []);
 
-  const moonMaterial = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
-      color: new THREE.Color("#E8E8E8"),
-      roughness: 0.9,
-      metalness: 0,
-      emissive: new THREE.Color("#FFFFFF"),
-      emissiveIntensity: 0.3,
-    });
-  }, []);
+const moonMaterial = useMemo(() => {
+  return new THREE.MeshStandardMaterial({
+    map: moonTexture,
+    roughness: 1,
+    metalness: 0,
+  });
+}, [moonTexture]);
+
 
   useFrame((state, delta) => {
     if (!isPaused) {
@@ -109,7 +110,8 @@ export function Earth({ planet }: EarthProps) {
   const isFocused = focusedPlanet?.id === planet.id;
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} name={`planet-${planet.id}`}>
+
       <mesh
         ref={meshRef}
         material={earthMaterial}
