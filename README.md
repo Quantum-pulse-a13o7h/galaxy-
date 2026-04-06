@@ -134,6 +134,9 @@ Open in browser: [http://localhost:5173](http://localhost:5173)
 5. Experience the solar system interactively
 
 ---
+## QR code for the web site 
+![Uploading link-encurtado.png…]()
+
 
 ## 📦 Assets & Resources
 
